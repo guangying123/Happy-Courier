@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Help everything</title>
+
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+<body style="overflow: auto">
+<div class="container" >
+    <div class="row" style="margin-top: 1%" >
+        <div class="col-md-6 col-md-offset-10">
+            <form class="form-inline" role="form">
+                <div class="form-group">
+                    <input type="text" placeholder="关键字" class="form-control" name="keyword" id="keyword"/>
+                </div>
+                <div class="form-group">
+                    <button type="button" id="kwbtn" class="btn btn-primary">查找</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <ul class="nav nav-pills" style="margin-left: 40%;margin-top: 5%">
+            <li class="active" id="studyli"><a  data-toggle="tab"  href="#study" >学习<span class="caret"></span></a></li>
+            <li id="happyli"><a data-toggle="tab"  href="#happy"  >娱乐<span class="caret"></span></a></li>
+            <li id="myneedli"><a data-toggle="tab"  href="#myneed"  >我的需求<span class="caret"></span></a></li>
+        </ul>
+    </div>
+
+    <div class="row" style="margin-top: 5%">
+        <div class="col-md-10 col-md-offset-2">
+
+            <!-- @@@-->
+            <div class="tab-content">
+                <div id="study" class="tab-pane fade in active" >
+                    <table  class="table table-bordered" id="studytab">
+                        <tr>
+                            <th class="col-md-2">需求信息id</th><th class="col-md-2">需求人id</th><th>需求内容</th><th class="col-md-2">酬劳</th><th class="col-md-1">接单</th>
+                        </tr>
+                    </table>
+                </div>
+                <!-- @@@-->
+                <div id="happy" class="tab-pane fade">
+                    <table id = "happytab" class="table table-bordered">
+                        <tr>
+                            <th class="col-md-2">需求信息id</th><th class="col-md-2">需求人id</th><th>需求内容</th><th class="col-md-2">酬劳</th><th class="col-md-1">接单</th>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <!-- @@@-->
+                <div id="myneed" class="tab-pane fade">
+                    <form id="myneedform">
+                        <select class="form-control" id="myneedkind" name="myneedkind">
+                            <option value="学习">学习</option>
+                            <option value="娱乐">娱乐</option>
+                        </select><br>
+                        <input type="text" id="myneedkw" name="myneedkw" class="form-control" placeholder="关键字"/><br>
+                        <input type="text" id="myneeddesc" class="form-control" name="myneeddesc" placeholder="需求描述"/><br>
+                        <input type="text" class="form-control" id="payfor" name="payfor" placeholder="酬劳"><br>
+                        <button type="button" class="btn btn-success col-md-offset-10" id="spread">发布</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+    var custId = "<%=custId%>";
+    $('#myneedli').click(function () {
+        $('#kwbtn').attr('disabled','disabled');
+    });
+    $('#happyli').click(function () {
+        $('#kwbtn').removeAttr('disabled');
+    })
+    $('#studyli').click(function () {
+        $('#kwbtn').removeAttr('disabled');
+    });
+
+    //需求信息发布
+    function not_null(id) {
+        if(id.value==null||id.value=="")
+        {
+            alert("该信息不能为空");
+            id.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function  all_not_null() {
+        var input = $('form#myneedform input');
+        var len = Object.keys(input).length-2;
+        for(var i = 0;i < len;i++)
+        {
+            if(not_null(input[i]) == false)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    $('#spread').click(function () {
+        if(all_not_null()==true)
+        {
+            var data = $('form').serialize();
+            data = data +"&custId="+custId;
+          $.ajax({
+                url:'http://localhost:3000/myneedroute',
+                data:data,
+                success:function (dat,name) {
+                    if(name=='success')
+                    {
+                        if(dat.search("true")!=-1)
+                        {
+                            alert("信息发布成功@_@");
+                        }
+                        else
+                        {
+                            alert("信息发布失败-_-");
+                        }
+                    }
+                }
+          })
+        }
+    });
+
+</script>
+
+
+<script>
+    $('#kwbtn').click(function () {
+        var itkind="";
+        var whichbtn;//学习/娱乐区分标记 1 为学习 0为娱乐
+        if($('#studyli').attr('class') =='active')
+        {
+            itkind=itkind+"学习";
+            whichbtn = 1;
+        }else
+        {
+            itkind = itkind+"娱乐";
+            whichbtn = 0;
+        }
+
+       var data = {"myneedkw":$('#keyword').val(),"myneedkind":itkind};
+
+       $.ajax({
+           url:'http://localhost:3000/help_everythingroute',
+           data:data,
+           success:function (dat,name) {
+            if(name=='success')
+            {
+                if(dat.search("false")!=-1)
+                {
+                    alert("Sorry,查询失败-_-");
+                    return;
+                }
+                dat = JSON.parse(dat);
+                if(dat.length == 0)
+                {
+                    whichbtn == 1? clc("studytab"):clc("happytab");
+                    alert("sorry,暂无对应的需求");
+                }
+                else
+                {
+                    whichbtn == 1? clc("studytab"):clc("happytab");
+                    whichbtn == 1?add(dat,"studytab"):add(dat,"happytab");
+                }
+            }
+           }
+       });
+
+    });
+
+    function  clc(id) {
+        while($('#'+id+' tr:eq(1)').length !=0)
+        {
+            $('#'+id+' tr:eq(1)').remove();
+        }
+    }
+    function add(datajson,id) {
+            var len = datajson.length;
+            console.log(len);
+            for(var i = 0;i<len;i++)
+            {
+                var newEl = $('<tr><td>'+datajson[i].infoId+'</td><td>'+datajson[i].custId+'</td><td>'+datajson[i].myneeddesc+'</td><td>'+datajson[i].payfor+'</td><td><button class="btn btn-success">选择</button></td></tr>');
+                $('#'+id).append(newEl);
+            }
+    }
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+如何查看mysql中的主码
+如何设置递增标记
+追加到二进制中的数据如何在服务器端解出来。
+表单图片追加等东西  在fields中
+设置自增主键
+
+注册模块有Bug注册正确可以  错误无法提示
+强行错误注册可以通过
+主键约束没在前台打出
+
+
+
+快件表
+快件id(自增pk)   customerId（外码发件人ID) thinghost hosttel(非空) thingcode（非空) whereget kinds  Destination flag(标记货品类型已处理 未处理 处理中)
+payfor 酬劳
+
+
+{ thinghost: 'a',
+  hosttel: 'a',
+  thingcode: 'a',
+  whereget: '北门',
+  kinds: '韵达',
+  Destination: 'a' }
+
+"helpme?customerId="+customerId
+deliver?customerId="+customerId
+help_everything?customerId="+customerId
+
+Iwantdeliver
+Everything_help
+
+序列化表单追加数据
+http://blog.csdn.net/csdnzhangtao5/article/details/52981541
+
+取件地点  收件地点统一
+
+flag 0刚发出的快递/1正在处理中的任务/2已完成的任务
+
+
+当点击完选择按钮后将flag置为1,并将快递信息加入到正在处理的表单中（快递信息包括快递的固有信息 以及发布信息的人员信息），当完成后将对应信息克隆到已处理信息中  
+
+
+需求表：
+
+需求信息id   infoId  PK
+需求人id  custId  外码
+
+关键字 myneedkw
+需求内容 myneeddesc
+酬劳 payfor
+所属类型 myneedkind
+flag 表示处理情况
+
+
+
+需求信息id   infoId  PK
+需求人id  custId  外码
+需求内容 myneeddesc
+酬劳 payfor
+
+
+当table信息太多时未加滑动条  未建立索引  
+
+当table很大时，加滑动条
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>deliver</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+
+<body style="background-color: honeydew;overflow: auto">
+
+<form class="form-horizontal col-md-6"  role="form">
+    <div class="form-group">
+        <label  class="col-sm-2 control-label">取件地点</label>
+        <div class="col-sm-10">
+            <label >选择列表</label>
+            <select id = "PickPlace" class="form-control">
+                <option vale="十号楼">十号楼</option>
+                <option value="近邻宝">近邻宝</option>
+                <option value="北门">北门</option>
+                <option value="北门外">北门外</option>
+                <option value="D楼邮政">D楼邮政</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label  class="col-sm-2 control-label">收件地点</label>
+        <div class="col-sm-10">
+            <select id = "SendPlace" class="form-control">
+                <option value="海棠公寓">海棠公寓</option>
+                <option value="丁香公寓">丁香公寓</option>
+                <option value="竹园公寓">竹园公寓</option>
+                <option value="图书馆">图书馆</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-sm-offset-2 col-sm-10">
+        <button type="button" class="btn btn-success col-md-2 col-md-offset-10" id="searchbtn">查询</button>
+    </div>
+</form>
+
+<table id = "myTable" class="table table-bordered">
+    <caption>可选订单</caption>
+    <tr>
+        <th>快件编号</th>
+        <th>发件人编号</th>
+        <th>酬劳</th>
+        <th>接单</th>
+    </tr>
+</table>
+<script>
+    $('#searchbtn').click(function () {
+        var PickPlace = $('#PickPlace').val();
+        var SendPlace = $('#SendPlace').val();
+        var data = {"PickPlace":PickPlace,"SendPlace":SendPlace};
+       // console.log(data);
+        $.ajax({
+            url:'http://localhost:3000/deliverroute',
+            data:data,
+            success:function (data,name) {
+                if(name =="success")
+                {
+                    data = JSON.parse(data);
+                    clc();
+                    if(data.length == 0)
+                    {
+                        alert("Sorry,没有满足条件的信息^_^");
+                    }
+                    else
+                    {
+                      add(data);
+                    }
+                }
+                else
+                    console.log("error:"+name);
+            }
+        });
+    });
+
+    function  clc() {//清除表格已有的数据
+        while($('table tr:eq(1)').length !=0)
+        {
+            $('table tr:eq(1)').remove();
+        }
+    }
+
+    function  add(datajson) {//根据返回数据动态增加表单
+        var len = datajson.length;
+        for(var i = 0;i<len;i++)
+        {
+            var tr=$('<tr><td class="col-md-3">'+datajson[i].id+'</td><td class="col-md-3">'+datajson[i].customerId+'</td><td class="col-md-3">'+datajson[i].payfor+'</td><td class="col-md-1"><button type="button" class="btn btn-success">选择</button></td></tr>');
+            $('table').append(tr);
+        }
+    }
+
+
+
+
+</script>
+</body>
+</html>

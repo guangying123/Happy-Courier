@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homepage</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+    <script>
+        var loginname = "<%=myloginname%>";//           @@@用户名
+        var logincode = "<%=mylogincode%>>";//          @@@密码
+        var flag = "<%=myflag%>";//       @@@用户名标记   1为tel 2为StuId
+    </script>
+
+    <style type="text/css">
+        .mytips
+        {
+            font-size:20pt;
+        }
+    </style>
+</head  >
+<body>
+<div class="row" style="background:azure;margin-left:0;margin-right:0">
+    <div class="col-md-3">
+        <h1>
+            Happy courier
+        </h1>
+    </div>
+    <div class="col-md-3 col-md-offset-6">
+        <button type="button" class="btn btn-link"><%=myloginname%></button>
+        <button type="button" class="btn btn-link" data-toggle="modal" data-target="#personalCenter" id="mycenter">个人中心</button>
+        <button id="exit" type="button" class="btn btn-link">退出</button>
+        <img id="myhead" src="images\not found.jpg" height="80px" weight="80px" class="img-circle" data-toggle="modal" data-target="#mypicture"/>
+    </div>
+</div>
+<!-- 实现退出按钮-->
+<script>
+//loginname  logincode  flag 全局   1为tel  2为StuId
+var customerId ;
+$(function () {
+    var phdata = {"loginname":loginname,"flag":flag};
+    $.ajax({
+            url:'http://localhost:3000/phpath',
+            data:phdata,
+            success:function (data,name) {
+            if(name =='success')
+            {
+                var data = JSON.parse(data);
+                customerId = data['id'];//用户编号
+                //console.log("customerId:"+customerId);
+                $('#myhead').attr('src',data['photo_path']);
+                $('#helpmetoget').attr('href',"helpme?customerId="+customerId);
+                $('#Iwantdeliver').attr('href',"deliver?customerId="+customerId);
+                $('#Everything_help').attr('href',"help_everything?customerId="+customerId);
+            }
+            else
+            {
+             console.log("err:"+name);
+            }
+        }
+    });
+});
+
+
+    $('#exit').click(function () {
+        window.location.href="http://localhost:3000/";
+    });
+</script>
+
+
+<!-- 头像上传的模态框-->
+<div id="mypicture" class="modal fade" aria-hidden="true" aria-labelledby="mypicturetitle" style="width: 40%;margin: 8% auto">
+    <div class="modal-content" style="background-color: bisque">
+        <div class="modal-header">
+            <button data-dismiss="modal" class="close" aria-hidden="true">
+                &times;
+            </button>
+            <h1 class="modal-title" id="mymodaltitle">
+                我的头像
+            </h1>
+        </div>
+        <div class="modal-body">
+            <form id="pictureform" method="post" enctype="multipart/form-data">
+                <input type="file" id="files" name="file" onchange="upload()"/>
+            </form>
+                <div id="showgrade"><img id="myloading" src="images/loading.gif" style="display: none; width: 12%"/></div>
+        </div>
+        <div class="modal-footer">
+            <em><small>@Copyright HappyCourier Team</small> </em>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ajaxStart(function () {
+            $('#myloading').show();
+        });
+        $(document).ajaxStop(function () {
+            $('#myloading').hide();
+        });
+    function  upload() {
+        var data = new FormData($('#pictureform')[0]);
+        data.append("loginname",loginname);
+        data.append("flag",flag);
+        console.log(data["flag"]);
+        var url="http://localhost:3000/filedeal";
+        $.ajax({
+            url:url,
+            type:'post',
+            data:data,
+            processData:false,//默认为true
+            contentType:false,//string类型 默认值: "application/x-www-form-urlencoded"。发送信息至服务器时内容编码类型。
+            success:function (dat,name) {
+                if(name =='success')
+                {
+                    console.log("success");
+
+                    $('#myhead').attr("src",dat);
+                }
+                else
+                    console.log("fail");
+            }
+        });
+    }
+</script>
+
+
+<!-- 个人中心的模态框-->
+<div id="personalCenter" class="modal fade" aria-labelledby="mymodaltitle" aria-hidden="true"  style="width: 40%;margin: 8% auto">
+    <div class="modal-content" style="background-color: bisque">
+            <div class="modal-header">
+                <button data-dismiss="modal" class="close" aria-hidden="true">
+                    &times;
+                </button>
+                <h1 class="modal-title" id="mymodaltitle">
+                    个人中心
+                </h1>
+            </div>
+            <div class="modal-body">
+                <form id="personalform">
+                    昵&nbsp;称:<input type="text" name="username" id="username" placeholder="*用户名"/><br><br>
+                    学 &nbsp;号:<input type="text" name="StuId" id ="StuId" placeholder="*学号"/><br><br>
+                    性&nbsp;别:<input type="radio" value="男" name="sex" id="sexboy"/>男 &nbsp;&nbsp;<input type="radio" value="女" name="sex" id="sexgirl"/>女<br><br>
+                    住&nbsp;址:
+                    <select name="addr" id="addr">
+                        <option value="海棠">海棠</option>
+                        <option value="竹园">竹园</option>
+                        <option value="丁香">丁香</option>
+                    </select><br><br>
+                    社&nbsp;交:<input type="text" name="relation" id="relation" placeholder="QQ/WeChat/E-mail"/><br><br>
+                    <button id="diet" type="button" style="margin-left: 7%">编辑</button>&nbsp;&nbsp;<button type="button"  id="save">保存</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <em><small>@Copyright HappyCourier Team</small> </em>
+            </div>
+    </div>
+</div>
+
+<script>
+    //个人中心编辑和保存的设置
+    //点击个人中心  发送AJAX请求 根据返回的数据回填表格并将表格设为禁用
+    //当点击编辑后解除禁用
+    function  formreadonly()//表单禁用函数
+    {
+        var temps = $('#personalform input');
+        temps.attr("readonly","readonly");
+        $('#addr').attr("disabled","disabled");
+        $('#sexboy').attr("disabled","disabled");
+        $('#sexgirl').attr("disabled","disabled");
+    }
+    function formenable() //表单解禁函数
+    {
+        var s = $('#personalform input');
+        s.removeAttr("readonly");
+        $('#addr').removeAttr("disabled");
+        $('#sexboy').removeAttr("disabled");
+        $('#sexgirl').removeAttr("disabled");
+    }
+//表单回填函数  即用服务器返回来的数据填写表单  该行为发生在刚点开个人中心时
+
+    $('#mycenter').click(function () {
+        formenable();
+        var userdata = {"loginname":loginname,"logincode":logincode,"flag":flag};
+        $.ajax({
+                url:"http://localhost:3000/mycenter",
+                data:userdata,
+                success:function (data,name) {
+                 if(name=='success')
+                 {
+                        //console.log(data);
+                        data = JSON.parse(data);
+                        Object.keys(data).forEach(function (e) {
+                            if(e == 'sex')
+                            {
+                                if(data[e] == "男")
+                                {
+                                    $('#sexboy').attr("checked","checked");
+                                }
+                                if(data[e]=="女")
+                                {
+                                    $('#sexgirl').attr("checked","checked");
+                                }
+                            }
+                            else
+                            {
+                                console.log("'"+"#"+e+"'");
+                                $("#"+e).val(data[e]);
+
+                            }
+
+                    });
+                     formreadonly();
+                 }
+                }
+        });
+    });
+
+    //表单提交 提交用户数据同时禁用表单
+    $('#save').click(function () {
+        var data = $("#personalform").serialize();
+        $.ajax({
+            url:'http://localhost:3000/mycenterajax',
+            data:data,
+            success:function (dat,name) {
+               if(name=='success')
+               {
+                   formreadonly();
+               }
+            }
+        });
+    });
+
+    $('#diet').click(function () {//编辑模块   取消表单的禁用
+        formenable();
+    });
+
+</script>
+
+<div id="spring" class="carousel slide" data-ride="carousel"  style="width: 100%;height:300px;">
+    <!-- 圆圈部分的样式-->
+    <ol  class="carousel-indicators">
+        <li data-target="#spring" data-slide-to="0" class="active"></li>
+        <li data-target="#spring" data-slide-to="1"></li>
+        <li data-target="#spring" data-slide-to="2"></li>
+        <li data-target="#spring" data-slide-to="3"></li>
+    </ol>
+    <!-- 轮播内容-->
+    <div class="carousel-inner" style="width: 100%;height: 100%;">
+        <div class="item active" style="width:100%;height:100%">
+            <img src="images/s145.jpg" alt="First picture!" style="width: 100%;height: 100%;" />
+
+
+            <div class="carousel-caption mytips"><em>Happy Everyday~</em></div>
+        </div>
+        <div class="item" style="width:100%;height:100%">
+            <img src="images/mysecond.jpg"  alt="Second picture" style="width: 100%;height: 100%;"/>
+            <div class="carousel-caption mytips"><em>Lovely Day~</em></div>
+        </div>
+        <div class="item" style="width:100%;height:100%">
+            <img src="images/mythird.jpg" alt="Third picture" style="width: 100%;height: 100%;"/>
+            <div class="carousel-caption mytips"><em>You are the world~</em></div>
+        </div>
+        <div class="item" style="width:100%;height:100%">
+            <img src="images/myfour.jpg" alt="Four picture"  style="width: 100%;height: 100%;"/>
+            <div class="carousel-caption mytips"><em>I love you~</em></div>
+        </div>
+    </div>
+    <!-- 设置向左向右的按钮样式-->
+    <a class="carousel-control left" href="#spring" data-slide="prev">&lsaquo;</a>
+    <a class="carousel-control right" href="#spring" data-slide="next">&rsaquo;</a>
+</div>
+
+
+
+<div class="container marketing" style="margin-top: 30px;">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <a href="helpme?customerId="+customerId id="helpmetoget">
+                <img class="img-circle" src="images/not found.jpg"  width="140" height="140">
+            </a>
+            <h2>帮我取快递</h2>
+            <p>发布自己的快件信息</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <a href="deliver?customerId="+customerId id="Iwantdeliver">
+                <img class="img-circle" src="images/myfirst.jpg"  width="140" height="140">
+            </a>
+            <h2>我要送快递</h2>
+            <p>派送用户申请派送快件</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <a href = "help_everything?customerId="+customerId id="Everything_help">
+                <img class="img-circle" src="images/s145.jpg" width="140" height="140">
+            </a>
+            <h2>百事帮</h2>
+            <p>学习，娱乐</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

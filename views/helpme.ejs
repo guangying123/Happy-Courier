@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Homepage</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+
+    <script  src="javascripts/jQuery.js"></script>
+    <link rel="stylesheet" type ="text/css" href="bootstrap/dist/css/bootstrap.min.css"/>
+    <script src="bootstrap/dist/js/bootstrap.min.js"></script>
+
+</head>
+<body style="background-color: seashell">
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-1">
+            <h2>取件信息</h2>
+        </div>
+    </div>
+    <div class="row">
+        <form class="form-horizontal" role="form">
+            <div class="form-group">
+                <label for="thinghost" class="col-md-2 control-label">姓名</label>
+                <div class="col-md-10">
+                    <input type="text" name="thinghost" class="form-control" id="thinghost"placeholder="姓名">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="hosttel"  class="col-md-2 control-label">手机号</label>
+                <div class="col-md-10">
+                    <input type="text" name="hosttel" class="form-control" id="hosttel" placeholder="手机号">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="thingcode" class="col-md-2 control-label">取件密码</label>
+                <div class="col-md-10">
+                    <input type="text" name="thingcode" class="form-control" id="thingcode" placeholder="取件密码">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="payfor" class="col-md-2 control-label">酬劳</label>
+                <div class="col-md-10">
+                    <input type="text" name="payfor" class="form-control" id="payfor" placeholder="酬劳">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="whereget" class="col-md-2 control-label">去哪儿取</label>
+                <div class="col-md-10">
+                    <!--<input type="text" class="form-control" id="去哪儿取" placeholder="去哪儿取">-->
+                    <select class="form-control" name="whereget" id="whereget">
+                        <option vale="十号楼">十号楼</option>
+                        <option value="近邻宝">近邻宝</option>
+                        <option value="北门">北门</option>
+                        <option value="北门外">北门外</option>
+                        <option value="D楼邮政">D楼邮政</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="kinds" class="col-md-2 control-label">什么快递</label>
+                <div class="col-md-10">
+                    <!--<input type="text" class="form-control" id="去哪儿取" placeholder="去哪儿取">-->
+                    <select class="form-control" name="kinds" id="kinds">
+                        <option value="韵达">韵达</option>
+                        <option value="申通">申通</option>
+                        <option value="中通">中通</option>
+                        <option value="圆通">圆通</option>
+                        <option value="汇通">汇通</option>
+                        <option value="天天">天天</option>
+                        <option value="顺丰">顺丰</option>
+                        <option value="EMS">EMS</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group" >
+                <label for="Destination" class="col-md-2 control-label">送到哪儿</label>
+                <div class="col-md-10">
+                    <select id="Destination" name="Destination" class="form-control" >
+                        <option value="海棠公寓">海棠公寓</option>
+                        <option value="丁香公寓">丁香公寓</option>
+                        <option value="竹园公寓">竹园公寓</option>
+                        <option value="图书馆">图书馆</option>
+                        <option value="其他">其他</option>
+                    </select>
+                    <!-- <input type="text" name="Destination" class="form-control" id="Destination" placeholder="送到哪儿">-->
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 col-md-offset-10">
+                    <button class="btn btn-default" type="reset" value="重置">重置</button>
+                    <button class="btn btn-default" type="button" id="submitbtn" value="提交">提交</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    var mycustomerId ="<%=mycustomerId%>";
+    console.log("mycustomerId:"+mycustomerId);
+    function  not_null(id) {//判断某项是否为空
+        var va = id.value;
+        if(va == null||va =="")
+        {
+            alert("该值不能为空");
+            id.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function  all_not_null() {
+        var input = $('form input');
+       var len = Object.keys(input).length-2;
+        for (var i =0;i<len;i++)
+        {
+            if(not_null(input[i]) == false)
+            {
+                return false;
+            }
+        }
+        var select = $('form select');
+        var slen = Object.keys(select).length-2;
+        //console.log(slen);
+        for(var i=0;i<slen;i++)
+        {
+            if(not_null(select[i])==false)
+            {
+                return false
+            }
+        }
+        return true;
+    }
+
+    $('#submitbtn').click(function ()
+    {
+        if(all_not_null() == true) {
+            var data = $('form').serialize();
+            data=data+'&'+'mycustomerId='+mycustomerId;
+            $.ajax({
+                url: 'http://localhost:3000/helpmeroute',
+                data: data,
+                success: function (dat,name) {
+                        if(name = 'success')
+                        {
+                          if(dat.search('true')!=-1)
+                          {
+                              alert("您的订单信息已提交成功@_@");
+                          }
+                          else
+                          {
+                            alert("您的订单信息提交失败-_-");
+                          }
+                        }
+                }
+            });
+        }
+    });
+
+</script>
+</body>
+</html>
